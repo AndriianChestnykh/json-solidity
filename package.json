@@ -1,0 +1,27 @@
+{
+  "name": "solidity-meta-draft",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "truffle": "^5.0.30"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha",
+    "remixd": "remixd -s /Users/achestnykh/WebStormProjects/solidity-meta-draft/contracts --remix-ide https://remix.ethereum.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndriianChestnykh/solidity-meta-draft.git"
+  },
+  "author": "Andriian Chestnykh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AndriianChestnykh/solidity-meta-draft/issues"
+  },
+  "homepage": "https://github.com/AndriianChestnykh/solidity-meta-draft#readme"
+}
