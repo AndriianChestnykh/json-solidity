@@ -1,5 +1,4 @@
-import { jsToEth, ethToJs } from './utils';
-import BigNumber from 'bignumber.js'
+const { jsToEth, ethToJs } = require('../utils');
 
 const data = {
   someKey1: '111',
@@ -15,7 +14,7 @@ describe('test', () => {
 
     const jsData = ethToJs(keys, values, offsets);
     console.log('jsData: ', jsData);
-    expect(jsData).toEqual(data);
+    expect(jsData).to.deep.equal(data);
   });
 });
 

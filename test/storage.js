@@ -1,34 +1,21 @@
 const crypto = require('crypto');
-
+const { jsToEth, ethToJs } = require ('../utils');
 const Storage = artifacts.require("Storage");
-
-const dataObj = {
-  id: '0x0000000000000000000000000000000000000000000000000000000000000001',
-  keys: ['0x0000000000000000000000000000000000000000000000000000000000000001', '0x0000000000000000000000000000000000000000000000000000000000000002'],
-  values: '0x' + ['0101', '020202'].join(''),
-  offsets: [0, 2]
+const jsonData = {
+  someKey1: 'someValue1',
+  someKey2: 'someValue2',
 };
 
-const dataObjModified = {
-  id: '0x0000000000000000000000000000000000000000000000000000000000000001',
-  keys: ['0x0000000000000000000000000000000000000000000000000000000000000001', '0x0000000000000000000000000000000000000000000000000000000000000002', '0x0000000000000000000000000000000000000000000000000000000000000003'],
-  values: '0x' + ['1111', '2222', '33333333'].join(''),
-  offsets: [0, 2, 4]
+const jsonData2 = {
+  someOtherKey1: 'someOtherValue1',
+  someOtherKey2: 'someOtherValue2',
+  someKey3: 'someValue2',
 };
 
-const dataObj2 = {
-  id: '0x0000000000000000000000000000000000000000000000000000000000000002',
-  keys: ['0x0000000000000000000000000000000000000000000000000000000000000001', '0x0000000000000000000000000000000000000000000000000000000000000002'],
-  values: '0x' + ['0101', '020202'].join(''),
-  offsets: [0, 2]
-};
-
-const dataObj3 = {
-  id: '0x0000000000000000000000000000000000000000000000000000000000000003',
-  keys: ['0x0000000000000000000000000000000000000000000000000000000000000001', '0x0000000000000000000000000000000000000000000000000000000000000002'],
-  values: '0x' + ['0101', '020202'].join(''),
-  offsets: [0, 2]
-};
+const dataObj = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000001'}, jsToEth(jsonData));
+const dataObjModified = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000001'}, jsToEth(jsonData2));
+const dataObj2 = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000002'}, jsToEth(jsonData));
+const dataObj3 = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000003'}, jsToEth(jsonData));
 
 contract('set', accounts => {
   it("set: Should create entry and return the same data after saving and increase count", async () => {
@@ -155,16 +142,22 @@ contract("setByDataKey", accounts => {
     await storageInstance.set(id, keys, values, offsets, logicAddress, {from: accounts[0]});
 
     const keyIndex = 0;
-    const newValue = '0x9999';
-    const newValues = `0x${newValue.slice(2)}020202`;
-    await storageInstance.setByDataKey(id, keys[keyIndex], newValue, {from: accounts[0]});
+    const newValue = 'someNewKeyValue';
+    const updatedJsData = Object.assign(
+      {},
+      jsonData,
+      { [Object.keys(jsonData)[keyIndex]]: newValue }
+    );
+    const updatedEthData = jsToEth(updatedJsData);
+
+    await storageInstance.setByDataKey(id, keys[keyIndex], `0x${Buffer.from(newValue).toString('hex')}`, {from: accounts[0]});
 
     const returnedData = await storageInstance.get.call(id);
-    assert.deepEqual(returnedData.keys, keys, "Returned keys is not equal to saved");
-    assert.equal(returnedData.values, newValues, "Returned values is not equal to saved one");
+    assert.deepEqual(returnedData.keys, updatedEthData.keys, "Returned keys is not equal to saved");
+    assert.equal(returnedData.values, updatedEthData.values, "Returned values is not equal to saved one");
     assert.deepEqual(
       returnedData.offsets.map(offset => offset.toNumber()),
-      offsets,
+      updatedEthData.offsets,
       'Returned offsets is not equal to saved one'
     );
   });

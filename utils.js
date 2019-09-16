@@ -1,5 +1,5 @@
-import Web3 from 'web3';
-import BigNumber from 'bignumber.js';
+const Web3 = require('web3');
+const BigNumber = require ('bignumber.js');
 
 const HEX_PREFIX = '0x';
 
@@ -63,4 +63,4 @@ function validateEth(keys, values, offsets) {
     if (offsets.length !== keys.length) throw new Error('keys and offsets lengths are not equal');
 }
 
-export { jsToEth, ethToJs };
+module.exports = { jsToEth, ethToJs };
