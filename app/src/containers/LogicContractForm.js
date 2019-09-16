@@ -27,7 +27,7 @@ class LogicContractForm extends Component {
 
         this.state = {
             key: '0x0000000000000000000000000000000000000000000000000000000000000001',
-            data: '{"key": "value"}',
+            data: '{"key1": "value1", "key2": "value2"}',
             // owner: this.accounts['0']
         };
     }
