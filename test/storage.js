@@ -1,26 +1,27 @@
 const crypto = require('crypto');
 const { jsToEth, ethToJs } = require ('../utils');
 const Storage = artifacts.require("Storage");
-const jsonData = {
+
+const jsData = {
   someKey1: 'someValue1',
   someKey2: 'someValue2',
 };
 
-const jsonData2 = {
+const jsData2 = {
   someOtherKey1: 'someOtherValue1',
   someOtherKey2: 'someOtherValue2',
   someKey3: 'someValue2',
 };
 
-const dataObj = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000001'}, jsToEth(jsonData));
-const dataObjModified = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000001'}, jsToEth(jsonData2));
-const dataObj2 = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000002'}, jsToEth(jsonData));
-const dataObj3 = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000003'}, jsToEth(jsonData));
+const ethData = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000001'}, jsToEth(jsData));
+const ethDataModified = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000001'}, jsToEth(jsData2));
+const ethData2 = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000002'}, jsToEth(jsData));
+const ethData3 = Object.assign({ id: '0x0000000000000000000000000000000000000000000000000000000000000003'}, jsToEth(jsData));
 
 contract('set', accounts => {
   it("set: Should create entry and return the same data after saving and increase count", async () => {
     const storageInstance = await Storage.deployed();
-    let {id, keys, values, offsets} = dataObj;
+    let {id, keys, values, offsets} = ethData;
     let logicAddress = accounts[0];
 
     await storageInstance.set(id, keys, values, offsets, logicAddress, { from: accounts[0] });
@@ -44,7 +45,7 @@ contract('set', accounts => {
 
   it("set: Should update an entry as expected", async () => {
     const storageInstance = await Storage.deployed();
-    const {id, keys, values, offsets} = dataObjModified;
+    const {id, keys, values, offsets} = ethDataModified;
     const logicAddress = accounts[0];
 
     await storageInstance.set(id, keys, values, offsets, logicAddress, { from: accounts[0] });
@@ -62,7 +63,7 @@ contract('set', accounts => {
 
   it("set: Should throw exception if logic address is not correct", async () => {
     const storageInstance = await Storage.deployed();
-    let {id, keys, values, offsets} = dataObj;
+    let {id, keys, values, offsets} = ethData;
     const logicAddress = accounts[0];
 
     let error;
@@ -77,7 +78,7 @@ contract('set', accounts => {
 contract('remove', accounts => {
   it('remove: Should remove an entry', async() => {
     const storageInstance = await Storage.deployed();
-    const { id, keys, values, offsets } = dataObj;
+    const { id, keys, values, offsets } = ethData;
     const logicAddress = accounts[0];
 
     await storageInstance.set(id, keys, values, offsets, logicAddress, { from: accounts[0] });
@@ -88,7 +89,7 @@ contract('remove', accounts => {
 
   it('remove: Should throw exception if is called not from logic address', async() => {
     const storageInstance = await Storage.deployed();
-    const { id, keys, values, offsets } = dataObj;
+    const { id, keys, values, offsets } = ethData;
     const logicAddress = accounts[0];
     let error;
 
@@ -104,13 +105,13 @@ contract('remove (multiply entities)', accounts => {
     const storageInstance = await Storage.deployed();
     const logicAddress = accounts[0];
 
-    const { id, keys, values, offsets } = dataObj;
+    const { id, keys, values, offsets } = ethData;
     await storageInstance.set(id, keys, values, offsets, logicAddress, { from: accounts[0] });
 
-    const { id: id2, keys: keys2, values: values2, offsets: offsets2 } = dataObj2;
+    const { id: id2, keys: keys2, values: values2, offsets: offsets2 } = ethData2;
     await storageInstance.set(id2, keys2, values2, offsets2, logicAddress, { from: accounts[0] });
 
-    const { id: id3, keys: keys3, values: values3, offsets: offsets3 } = dataObj3;
+    const { id: id3, keys: keys3, values: values3, offsets: offsets3 } = ethData3;
     await storageInstance.set(id3, keys3, values3, offsets3, logicAddress, { from: accounts[0] });
 
     await storageInstance.remove(id, {from: accounts[0]});
@@ -136,7 +137,7 @@ contract('remove (multiply entities)', accounts => {
 contract("setByDataKey", accounts => {
   it("setByDataKey: Should change data value as expected", async () => {
     let storageInstance = await Storage.deployed();
-    let {id, keys, values, offsets} = dataObj;
+    let {id, keys, values, offsets} = ethData;
     const logicAddress = accounts[0];
     
     await storageInstance.set(id, keys, values, offsets, logicAddress, {from: accounts[0]});
@@ -145,8 +146,8 @@ contract("setByDataKey", accounts => {
     const newValue = 'someNewKeyValue';
     const updatedJsData = Object.assign(
       {},
-      jsonData,
-      { [Object.keys(jsonData)[keyIndex]]: newValue }
+      jsData,
+      { [Object.keys(jsData)[keyIndex]]: newValue }
     );
     const updatedEthData = jsToEth(updatedJsData);
 
@@ -165,8 +166,8 @@ contract("setByDataKey", accounts => {
   it("setByDataKey: Should throw exception if is called not from logic contract", async () => {
     const storageInstance = await Storage.deployed();
 
-    const { id } = dataObj;
-    const newKey = dataObj.keys[0];
+    const { id } = ethData;
+    const newKey = ethData.keys[0];
     const newValue = '0x03030303';
     let error;
     await storageInstance.setByDataKey(id, newKey, newValue, {from: accounts[1]}).catch(e => error = e);
@@ -193,7 +194,7 @@ contract('updateLogic', accounts => {
     let storageInstance = await Storage.deployed();
     const logicAddress = accounts[0];
 
-    let {id, keys, values, offsets} = dataObj;
+    let {id, keys, values, offsets} = ethData;
     await storageInstance.set(id, keys, values, offsets, logicAddress, {from: accounts[0]});
     const newLogic = accounts[0];
     await storageInstance.updateLogic(id, newLogic, { from: accounts[0] });
