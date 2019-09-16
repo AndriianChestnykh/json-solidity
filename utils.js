@@ -51,11 +51,6 @@ function isPureObject(value) {
     return value !== null && value !== undefined && value.constructor && value.constructor === Object;
 }
 
-function isObject(value) {
-    const type = typeof value;
-    return value !== null && (type === 'object' || type === 'function');
-}
-
 function validateEth(keys, values, offsets) {
     if (!keys instanceof Array) throw new Error('keys is not instanceof Array');
     if (typeof values !== 'string') throw new Error('values is not topeof string');
