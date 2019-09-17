@@ -189,15 +189,15 @@ contract("setByDataKey", accounts => {
   });
 });
 
-contract('updateLogic', accounts => {
-  it('updateLogic: Should update logic address as expected', async () => {
+contract('setLogic', accounts => {
+  it('setLogic: Should update logic address as expected', async () => {
     let storageInstance = await Storage.deployed();
     const logicAddress = accounts[0];
 
     let {id, keys, values, offsets} = ethData;
     await storageInstance.set(id, keys, values, offsets, logicAddress, {from: accounts[0]});
-    const newLogic = accounts[0];
-    await storageInstance.updateLogic(id, newLogic, { from: accounts[0] });
+    const newLogic = accounts[1];
+    await storageInstance.setLogic(id, newLogic, { from: accounts[0] });
     const newLogicCheck = await storageInstance.getLogic.call(id);
     assert.equal(newLogic, newLogicCheck, 'New Logic address has not been set properly')
   });

@@ -21,8 +21,8 @@ contract Logic {
         dataStorage.setByDataKey(id, metaKey, metaValue);
     }
 
-    function updateLogic(bytes32 id, address newLogic) public {
-        dataStorage.updateLogic(id, newLogic);
+    function setLogic(bytes32 id, address newLogic) public {
+        dataStorage.setLogic(id, newLogic);
     }
 
     function get(bytes32 id) public view returns(

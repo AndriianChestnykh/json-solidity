@@ -8,21 +8,22 @@ contract Storage {
         address logic;
         uint index;
     }
+
     mapping(bytes32 => Entry) entries;
     bytes32[] ids;
 
     function set(bytes32 id, bytes32[] memory keys, bytes memory values, uint[] memory offsets, address logic) public onlyValid (keys, offsets){
-        if(!exists(id)) {
-            ids.push(id);
-            entries[id].logic = logic;
-            entries[id].index = ids.length - 1;
-        } else {
+        require(logic != address(0), 'Logic address in zero!');
+        if(exists(id)) {
             require(isLogic(id, msg.sender), 'The entry does not exist or attempts to modify not from entry logic address!');
             uint index = entries[id].index;
             delete entries[id];
-            entries[id].logic = logic;
             entries[id].index = index;
+        } else {
+            ids.push(id);
+            entries[id].index = ids.length - 1;
         }
+
         uint currentOffset;
         //todo consider optimizing this for in terms of gas efficiency
         for (uint i = 0; i < offsets.length; i++) {
@@ -37,6 +38,7 @@ contract Storage {
         }
         entries[id].keys = keys;
         entries[id].size = values.length;
+        entries[id].logic = logic;
     }
 
     function remove(bytes32 id) public onlyLogic(id){
@@ -65,7 +67,7 @@ contract Storage {
         }
     }
 
-    function updateLogic(bytes32 id, address newLogic) public onlyLogic(id){
+    function setLogic(bytes32 id, address newLogic) public onlyLogic(id){
         require(newLogic != address(0), 'Logic contract address can not be zero');
         entries[id].logic = newLogic;
     }
