@@ -14,7 +14,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "mocha",
-    "remixd": "remixd -s /Users/achestnykh/WebStormProjects/solidity-meta-draft/contracts --remix-ide https://remix.ethereum.org"
+    "remixd": "remixd -s ./contracts --remix-ide https://remix.ethereum.org"
   },
   "repository": {
     "type": "git",
