@@ -11,25 +11,6 @@ contract Storage {
     mapping(bytes32 => Entry) entries;
     bytes32[] ids;
 
-    function setInternal(bytes32 id, bytes32[] memory keys, bytes memory values, uint[] memory offsets) internal {
-        bytes memory value;
-        uint currentOffset;
-        uint size;
-        //todo consider optimizing this for in terms of gas efficiency
-        for (uint i = 0; i < offsets.length; i++) {
-            //todo consider checking if current offset is greater than previous offset
-            require(currentOffset < values.length, 'Data is invalid!');
-            size = (i < offsets.length - 1 ? offsets[i+1]: values.length) - currentOffset;
-            value = new bytes(size);
-            for (uint m = 0; m < size; m++) {
-                value[m] = values[currentOffset++];
-            }
-            entries[id].data[keys[i]] = value;
-        }
-        entries[id].keys = keys;
-        entries[id].size = values.length;
-    }
-
     function set(bytes32 id, bytes32[] memory keys, bytes memory values, uint[] memory offsets, address logic) public onlyValid (keys, offsets){
         if(!exists(id)) {
             ids.push(id);
@@ -42,12 +23,25 @@ contract Storage {
             entries[id].logic = logic;
             entries[id].index = index;
         }
-        setInternal(id, keys, values, offsets);
+        uint currentOffset;
+        //todo consider optimizing this for in terms of gas efficiency
+        for (uint i = 0; i < offsets.length; i++) {
+            //todo consider checking if current offset is greater than previous offset
+            require(currentOffset < values.length, 'Data is invalid!');
+            uint valueSize = (i < offsets.length - 1 ? offsets[i+1]: values.length) - currentOffset;
+            bytes memory value = new bytes(valueSize);
+            for (uint m = 0; m < valueSize; m++) {
+                value[m] = values[currentOffset++];
+            }
+            entries[id].data[keys[i]] = value;
+        }
+        entries[id].keys = keys;
+        entries[id].size = values.length;
     }
 
     function remove(bytes32 id) public onlyLogic(id){
         // move entry id from the end of the array if entries[id].index is not the last index for the array
-        // entries order can change in entriesIDs
+        // entries order can change in ids
         if(entries[id].index < ids.length - 1) {
             ids[entries[id].index] = ids[ids.length - 1];
             entries[ids[ids.length - 1]].index = entries[id].index;
