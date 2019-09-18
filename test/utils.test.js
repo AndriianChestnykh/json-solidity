@@ -6,7 +6,7 @@ const data = {
   someKey3: '33'
 };
 
-describe('test', () => {
+describe('Data conversion', () => {
   it('convert to composeEth and back with ethToJs should result the same data', () => {
     const ethData = jsToEth(data);
     const { keys, values, offsets } = ethData;

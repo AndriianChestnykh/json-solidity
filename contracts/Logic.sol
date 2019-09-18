@@ -17,8 +17,8 @@ contract Logic {
         dataStorage.remove(id);
     }
 
-    function setByDataKey(bytes32 id, bytes32 metaKey, bytes memory metaValue) public {
-        dataStorage.setByDataKey(id, metaKey, metaValue);
+    function setByDataKey(bytes32 id, bytes32 key, bytes memory value) public {
+        dataStorage.setByDataKey(id, key, value);
     }
 
     function setLogic(bytes32 id, address newLogic) public {
