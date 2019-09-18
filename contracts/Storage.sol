@@ -14,14 +14,16 @@ contract Storage {
 
     function set(bytes32 id, bytes32[] memory keys, bytes memory values, uint[] memory offsets, address logic) public onlyValid (keys, offsets){
         require(logic != address(0), 'Logic address in zero!');
+        Entry storage e = entries[id];
+
         if(exists(id)) {
             require(isLogic(id, msg.sender), 'The entry does not exist or attempts to modify not from entry logic address!');
-            uint index = entries[id].index;
-            delete entries[id];
-            entries[id].index = index;
+            _removeEntryData(id);
+            delete e.keys;
+            delete e.size;
         } else {
             ids.push(id);
-            entries[id].index = ids.length - 1;
+            e.index = ids.length - 1;
         }
 
         uint currentOffset;
@@ -34,11 +36,11 @@ contract Storage {
             for (uint m = 0; m < valueSize; m++) {
                 value[m] = values[currentOffset++];
             }
-            entries[id].data[keys[i]] = value;
+            e.data[keys[i]] = value;
         }
-        entries[id].keys = keys;
-        entries[id].size = values.length;
-        entries[id].logic = logic;
+        e.keys = keys;
+        e.size = values.length;
+        e.logic = logic;
     }
 
     function remove(bytes32 id) public onlyLogic(id){
@@ -52,6 +54,14 @@ contract Storage {
         // so at least one entry should exist and array overflow should be excluded
         ids.length--;
         delete entries[id];
+        _removeEntryData(id);
+    }
+
+    function _removeEntryData(bytes32 id) internal {
+        Entry storage e = entries[id];
+        for (uint i = 0; i < e.keys.length; i++) {
+            delete e.data[e.keys[i]];
+        }
     }
     
     function setByDataKey(bytes32 id, bytes32 key, bytes memory value) public onlyLogic(id){
