@@ -19,8 +19,6 @@ contract Storage {
         if(exists(id)) {
             require(isLogic(id, msg.sender), 'The entry does not exist or attempts to modify not from entry logic address!');
             _removeEntryData(id);
-            delete e.keys;
-            delete e.size;
         } else {
             ids.push(id);
             e.index = ids.length - 1;
@@ -44,17 +42,19 @@ contract Storage {
     }
 
     function remove(bytes32 id) public onlyLogic(id){
+        Entry storage e = entries[id];
         // move entry id from the end of the array if entries[id].index is not the last index for the array
         // entries order can change in ids
-        if(entries[id].index < ids.length - 1) {
-            ids[entries[id].index] = ids[ids.length - 1];
-            entries[ids[ids.length - 1]].index = entries[id].index;
+        if(e.index < ids.length - 1) {
+            ids[e.index] = ids[ids.length - 1];
+            entries[ids[ids.length - 1]].index = e.index;
         }
         // the array length should not be zero as far as onlyLogic modifier requires exists(id) check
         // so at least one entry should exist and array overflow should be excluded
         ids.length--;
-        delete entries[id];
         _removeEntryData(id);
+        delete e.logic;
+        delete e.index;
     }
 
     function _removeEntryData(bytes32 id) internal {
@@ -62,6 +62,8 @@ contract Storage {
         for (uint i = 0; i < e.keys.length; i++) {
             delete e.data[e.keys[i]];
         }
+        delete e.keys;
+        delete e.size;
     }
     
     function setByDataKey(bytes32 id, bytes32 key, bytes memory value) public onlyLogic(id){
