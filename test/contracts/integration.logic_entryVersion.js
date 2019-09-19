@@ -1,4 +1,4 @@
-const { jsToEth, ethToJs } = require ('../utils');
+const { jsToEth, ethToJs } = require ('../../utils');
 const Web3 = require('web3');
 const Storage = artifacts.require("Storage");
 const Logic_EntryVersion = artifacts.require("Logic_EntryVersion");

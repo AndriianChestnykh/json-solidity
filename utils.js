@@ -4,8 +4,10 @@ const BigNumber = require ('bignumber.js');
 const HEX_PREFIX = '0x';
 
 function jsToEth(data) {
-    if (!validateJS(data)) {
-        throw new Error('Invalid input data');
+    try {
+        validateJS(data);
+    } catch(e) {
+        throw new Error('JS data is not valid: ' + e.message);
     }
 
     return Object.keys(data).reduce((ethData, key) => {
@@ -21,15 +23,15 @@ function jsToEth(data) {
 }
 
 function ethToJs(keys, values, offsets) {
-    const keysCopy = keys.map(key => Web3.utils.hexToString(key));
-    const valuesCopy = values.slice(HEX_PREFIX.length);
-    const offsetsCopy = offsets.map(offset => offset instanceof BigNumber ? offset.toNumber(): offset);
-
     try {
         validateEth(keys, values, offsets);
     } catch (e) {
-        throw new Error('Ethereum data is not valid: ', e.message);
+        throw new Error('Ethereum data is not valid: ' + e.message);
     }
+
+    const keysCopy = keys.map(key => Web3.utils.hexToString(key));
+    const valuesCopy = values.slice(HEX_PREFIX.length);
+    const offsetsCopy = offsets.map(offset => offset instanceof BigNumber ? offset.toNumber(): offset);
 
     return keysCopy.reduce((resultJS, key, index) => {
         const startValue = offsetsCopy[index] * 2;
@@ -41,21 +43,21 @@ function ethToJs(keys, values, offsets) {
 }
 
 function validateJS(data) {
-    return isPureObject(data)
-        && Object.keys(data)
-            .every(key => typeof data[key] === 'string'
-                && data[key].trim() !== '' && key.length);
+    if (!isPureObject(data)) throw new Error('JS data is not pure object');
+    if (!Object.keys(data)
+      .every(key => typeof data[key] === 'string'
+        && data[key].trim() !== '' && key.length)) throw new Error('JS data key values are not strings or at least one of key values has zero length');
+}
+
+function validateEth(keys, values, offsets) {
+    if (!(keys instanceof Array)) throw new Error('keys is not instanceof Array');
+    if (typeof values !== 'string') throw new Error('values is not topeof string');
+    if (!(offsets instanceof Array)) throw new Error('offsets is not instanceof Array');
+    if (offsets.length !== keys.length) throw new Error('keys and offsets lengths are not equal');
 }
 
 function isPureObject(value) {
     return value !== null && value !== undefined && value.constructor && value.constructor === Object;
 }
 
-function validateEth(keys, values, offsets) {
-    if (!keys instanceof Array) throw new Error('keys is not instanceof Array');
-    if (typeof values !== 'string') throw new Error('values is not topeof string');
-    if (!offsets instanceof Array) throw new Error('offsets is not instanceof Array');
-    if (offsets.length !== keys.length) throw new Error('keys and offsets lengths are not equal');
-}
-
-module.exports = { jsToEth, ethToJs };
+module.exports = { jsToEth, ethToJs, validateJS, validateEth, isPureObject };

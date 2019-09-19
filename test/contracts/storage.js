@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { jsToEth, ethToJs } = require ('../utils');
+const { jsToEth, ethToJs } = require ('../../utils');
 const Storage = artifacts.require("Storage");
 
 const jsData = {
