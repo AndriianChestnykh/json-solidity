@@ -3,17 +3,18 @@ const BigNumber = require ('bignumber.js');
 
 const HEX_PREFIX = '0x';
 
-function jsToEth(data) {
+function jsonToEthObject(data) {
+    let parsedData;
     try {
-        validateJS(data);
+        parsedData = parseJSON(data);
     } catch(e) {
         throw new Error('JS data is not valid: ' + e.message);
     }
 
-    return Object.keys(data).reduce((ethData, key) => {
+    return Object.keys(parsedData).reduce((ethData, key) => {
         ethData.keys.push(Web3.utils.rightPad(Web3.utils.stringToHex(key), 64));
         ethData.offsets.push((ethData.values.length - HEX_PREFIX.length) / 2);
-        ethData.values += Web3.utils.stringToHex(data[key]).slice(2);
+        ethData.values += Web3.utils.stringToHex(parsedData[key]).slice(2);
         return ethData;
     }, {
         keys: [],
@@ -22,7 +23,11 @@ function jsToEth(data) {
     });
 }
 
-function ethToJs(keys, values, offsets) {
+function jsonToEth(data){
+  return Object.values(jsonToEthObject(data));
+}
+
+function ethArgsToJson(keys, values, offsets) {
     try {
         validateEth(keys, values, offsets);
     } catch (e) {
@@ -33,20 +38,32 @@ function ethToJs(keys, values, offsets) {
     const valuesCopy = values.slice(HEX_PREFIX.length);
     const offsetsCopy = offsets.map(offset => offset instanceof BigNumber ? offset.toNumber(): offset);
 
-    return keysCopy.reduce((resultJS, key, index) => {
+    const result = keysCopy.reduce((resultJS, key, index) => {
         const startValue = offsetsCopy[index] * 2;
         const endValue = index !== offsetsCopy.length - 1 ? offsetsCopy[index + 1] * 2: values.length -1;
         const value = valuesCopy.slice(startValue, endValue);
         resultJS[key] = Web3.utils.hexToString(HEX_PREFIX + value);
         return resultJS;
     }, {});
+
+    return JSON.stringify(result);
 }
 
-function validateJS(data) {
-    if (!isPureObject(data)) throw new Error('JS data is not pure object');
-    if (!Object.keys(data)
-      .every(key => typeof data[key] === 'string'
-        && data[key].trim() !== '' && key.length)) throw new Error('JS data key values are not strings or at least one of key values has zero length');
+function ethToJson({keys, values, offsets}){
+    return ethArgsToJson(keys, values, offsets);
+}
+
+function parseJSON(data) {
+    let parsedData;
+    try {
+        parsedData = JSON.parse(data);
+    } catch (e) {
+        throw new Error(`JSON data parse error: ${e.message}`)
+    }
+    if (!Object.keys(parsedData)
+      .every(key => typeof parsedData[key] === 'string'
+        && parsedData[key].trim() !== '' && key.length)) throw new Error('JS data key values are not strings or at least one of key values has zero length after trim');
+    return parsedData;
 }
 
 function validateEth(keys, values, offsets) {
@@ -56,8 +73,4 @@ function validateEth(keys, values, offsets) {
     if (offsets.length !== keys.length) throw new Error('keys and offsets lengths are not equal');
 }
 
-function isPureObject(value) {
-    return value !== null && value !== undefined && value.constructor && value.constructor === Object;
-}
-
-module.exports = { jsToEth, ethToJs, validateJS, validateEth, isPureObject };
+module.exports = { jsonToEth, ethToJson, jsonToEthObject, parseJSON, validateEth };

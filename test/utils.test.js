@@ -1,23 +1,23 @@
-const { jsToEth, ethToJs } = require('../utils');
+const { jsonToEth, ethToJson } = require('../utils');
 const assert = require('assert');
-
-const data = {
-  someKey1: '111',
-  someKey2: '2222',
-  someKey3: '33'
-};
 
 describe('Data conversion', () => {
   it('Should convert to eth data and back with js data with no data corruption', () => {
-    const ethData = jsToEth(data);
-    const { keys, values, offsets } = ethData;
-    const jsData = ethToJs(keys, values, offsets);
-    assert.deepEqual(jsData, data);
+    const jsonData = JSON.stringify({
+      someKey1: '111',
+      someKey2: '2222',
+      someKey3: '33'
+    });
+    
+    const ethData = jsonToEth(jsonData);
+    const ethDataBack = {keys: ethData[0], values: ethData[1], offsets: ethData[2]};
+    const jsDataBack = ethToJson(ethDataBack);
+    assert.equal(jsonData, jsDataBack);
   });
 
   it('Should throw if JS data is not valid', () => {
-    const jsData = {key: '', key2: 'someValue'};
-    assert.throws(() => jsToEth(jsData), /Error: JS data is not valid: JS data key values are not strings or at least one of key values has zero length/);
+    const jsData = JSON.stringify({key: '', key2: 'someValue'});
+    assert.throws(() => jsonToEth(jsData), /Error: JS data is not valid: JS data key values are not strings or at least one of key values has zero length/);
   });
 
   it('Should throw if ETH data is not valid', () => {
@@ -30,10 +30,10 @@ describe('Data conversion', () => {
     const wrongOffsetsNotArray = 'wrong offsets';
     const wrongOffsetsBadLength = [0];
 
-    assert.throws(() => ethToJs(wrongKeysNotArray, values, offsets), /Error: Ethereum data is not valid: keys is not instanceof Array/);
-    assert.throws(() => ethToJs(keys, wrongValuesNotString, offsets), /Error: Ethereum data is not valid: values is not topeof string/);
-    assert.throws(() => ethToJs(keys, values, wrongOffsetsNotArray), /Error: Ethereum data is not valid: offsets is not instanceof Array/);
-    assert.throws(() => ethToJs(keys, values, wrongOffsetsBadLength), /Error: Ethereum data is not valid: keys and offsets lengths are not equal/);
+    assert.throws(() => ethToJson({ keys: wrongKeysNotArray, values, offsets}), /Error: Ethereum data is not valid: keys is not instanceof Array/);
+    assert.throws(() => ethToJson({ keys, values: wrongValuesNotString, offsets }), /Error: Ethereum data is not valid: values is not topeof string/);
+    assert.throws(() => ethToJson({ keys, values, offsets: wrongOffsetsNotArray }), /Error: Ethereum data is not valid: offsets is not instanceof Array/);
+    assert.throws(() => ethToJson({ keys, values, offsets: wrongOffsetsBadLength }), /Error: Ethereum data is not valid: keys and offsets lengths are not equal/);
   });
 });
 
