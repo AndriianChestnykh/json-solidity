@@ -8,7 +8,7 @@ const jsData = {
   someKey2: 'someValue2',
 };
 
-const artifacts = JSON.parse(fs.readFileSync('./app/src/contracts/Storage.json'));
+const artifacts = JSON.parse(fs.readFileSync('./contracts/build/Storage.json'));
 // Ganache network
 const web3 = new Web3('http://127.0.0.1:7545');
 const storage = new web3.eth.Contract(artifacts.abi, artifacts.networks['5777'].address);

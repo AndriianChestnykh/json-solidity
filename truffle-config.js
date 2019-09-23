@@ -28,7 +28,7 @@ const path = require('path');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
 module.exports = {
-  contracts_build_directory: path.join(__dirname, "app/src/contracts"),
+  contracts_build_directory: path.join(__dirname, "./contracts/build"),
 
   /**
    * Networks define how you connect to your ethereum client and let you set the
