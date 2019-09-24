@@ -6,7 +6,7 @@ const HEX_PREFIX = '0x';
 function jsonToEthObj(data) {
     let parsedData;
     try {
-        parsedData = parseJSON(data);
+        parsedData = parseJson(data);
     } catch(e) {
         throw new Error('JS data is not valid: ' + e.message);
     }
@@ -27,21 +27,18 @@ function jsonToEth(data){
   return Object.values(jsonToEthObj(data));
 }
 
-function ethToJsonObj({keys, values, offsets}) {
+function ethToJsonObj(data) {
+    let keys, values, offsets;
     try {
-        validateEth(keys, values, offsets);
+        ({keys, values, offsets} = parseEth(data));
     } catch (e) {
         throw new Error('Ethereum data is not valid: ' + e.message);
     }
 
-    const keysCopy = keys.map(key => Web3.utils.hexToString(key));
-    const valuesCopy = values.slice(HEX_PREFIX.length);
-    const offsetsCopy = offsets.map(offset => offset instanceof BigNumber ? offset.toNumber(): offset);
-
-    return keysCopy.reduce((resultJS, key, index) => {
-        const startValue = offsetsCopy[index] * 2;
-        const endValue = index !== offsetsCopy.length - 1 ? offsetsCopy[index + 1] * 2: values.length -1;
-        const value = valuesCopy.slice(startValue, endValue);
+    return keys.reduce((resultJS, key, index) => {
+        const startValue = offsets[index] * 2;
+        const endValue = index !== offsets.length - 1 ? offsets[index + 1] * 2: values.length;
+        const value = values.slice(startValue, endValue);
         resultJS[key] = Web3.utils.hexToString(HEX_PREFIX + value);
         return resultJS;
     }, {});
@@ -51,7 +48,7 @@ function ethToJson(data){
     return JSON.stringify(ethToJsonObj(data));
 }
 
-function parseJSON(data) {
+function parseJson(data) {
     let parsedData;
     try {
         parsedData = JSON.parse(data);
@@ -64,11 +61,18 @@ function parseJSON(data) {
     return parsedData;
 }
 
-function validateEth(keys, values, offsets) {
+function parseEth({keys, values, offsets}) {
     if (!(keys instanceof Array)) throw new Error('keys is not instanceof Array');
-    if (typeof values !== 'string') throw new Error('values is not topeof string');
+    if (values !== null && typeof values !== 'string') throw new Error('values is not null and is not topeof string');
+    if (values.indexOf(HEX_PREFIX) === -1) throw new Error('Values is not hex prefixed');
     if (!(offsets instanceof Array)) throw new Error('offsets is not instanceof Array');
     if (offsets.length !== keys.length) throw new Error('keys and offsets lengths are not equal');
+
+    return {
+        keys: keys.map(key => Web3.utils.hexToString(key)),
+        values: values === null ? '': values.slice(HEX_PREFIX.length),
+        offsets: offsets.map(offset => offset instanceof BigNumber ? offset.toNumber(): offset)
+    }
 }
 
-module.exports = { jsonToEth, jsonToEthObj, ethToJson, ethToJsonObj, parseJSON, validateEth };
+module.exports = { jsonToEth, jsonToEthObj, ethToJson, ethToJsonObj, parseJson, parseEth };
