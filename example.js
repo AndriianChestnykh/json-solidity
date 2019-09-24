@@ -3,20 +3,14 @@ const Web3 = require('web3');
 const fs = require('fs');
 const crypto = require('crypto');
 
-const jsonData = JSON.stringify({
-  keyToChange: 'change me !',
-  keyNotToTouch: 'do not touch me !',
-  keyToDelete: 'delete me !',
-});
-
-const artifacts = JSON.parse(fs.readFileSync('./contracts/build/Storage.json'));
+// Smart contracts should be deployed beforehand with 'truffle migrate'
+async function processJsonExample (jsonData) {
+  const artifacts = JSON.parse(fs.readFileSync('./contracts/build/Storage.json'));
 
 // Ganache network
-const web3 = new Web3('http://127.0.0.1:7545');
-const storage = new web3.eth.Contract(artifacts.abi, artifacts.networks['5777'].address);
+  const web3 = new Web3('http://127.0.0.1:7545');
+  const storage = new web3.eth.Contract(artifacts.abi, artifacts.networks['5777'].address);
 
-// Smart contracts should be deployed befohand with 'truffle migrate'
-(async function() {
   const address = (await web3.eth.getAccounts())[0];
   const id = '0x' + crypto.randomBytes(32).toString('hex');
 
@@ -33,12 +27,17 @@ const storage = new web3.eth.Contract(artifacts.abi, artifacts.networks['5777'].
     .send({ from: address, gas: 1000000 }).catch(error => console.log(error.message));
 
   const ethDataFromContract = await storage.methods.get(id).call();
-  const jsDataFromContract = ethToJson(ethDataFromContract);
+  return ethToJson(ethDataFromContract);
+}
 
-  console.log(`Initial JSON value: ${JSON.stringify(jsonData)}, JSON value after processing inside smart contract: ${JSON.stringify(jsDataFromContract)}`);
-})();
+const jsonData = JSON.stringify({
+  keyToChange: 'change me !',
+  keyNotToTouch: 'do not touch me !',
+  keyToDelete: 'delete me !',
+});
 
+const updatedJsonData = processJsonExample(jsonData);
 
-
+console.log(`Initial JSON value: ${JSON.stringify(jsonData)}, JSON value after processing in Smart Contract: ${JSON.stringify(updatedJsonData)}`);
 
 
