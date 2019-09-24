@@ -25,7 +25,10 @@ const jsonData = JSON.stringify({
   someKey3: 'someValue3',
 });
 
-await storage.methods.set(id, ...jsonToEth(jsonData), address).send({ from: '0x120f5E67e56dECfc3C635BAAbd99446167320152' });
+// smart contract or account address, which is responsible for business logic
+const address = '0x120f5E67e56dECfc3C635BAAbd99446167320152'; 
+
+await storage.methods.set(id, ...jsonToEth(jsonData), address).send({ from: address });
 ...
 ```
 
@@ -41,8 +44,11 @@ const jsonDataFromContract = ethToJson(ethDataFromContract);
 ```js
 const { jsonToEth, ethToJson } = require ('./utils');
 
-await storage.methods.setByDataKey(id, Web3.utils.stringToHex('newKey'), Web3.utils.toHex('I am a new key !')).send({ from: '0x120f5E67e56dECfc3C635BAAbd99446167320152' });
-await storage.methods.setByDataKey(id, Web3.utils.stringToHex('keyToChange'), Web3.utils.toHex('changed !')).send({ from: '0x120f5E67e56dECfc3C635BAAbd99446167320152' });
+// smart contract or account address, which is responsible for business logic
+const address = '0x120f5E67e56dECfc3C635BAAbd99446167320152'; 
+
+await storage.methods.setByDataKey(id, Web3.utils.stringToHex('newKey'), Web3.utils.toHex('I am a new key !')).send({ from: address });
+await storage.methods.setByDataKey(id, Web3.utils.stringToHex('keyToChange'), Web3.utils.toHex('changed !')).send({ from: address });
 await storage.methods.removeByDataKey(id, Web3.utils.stringToHex('keyToDelete')).send({ from: address });
 
 ``` 
