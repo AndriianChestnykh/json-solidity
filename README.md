@@ -46,8 +46,8 @@ const jsonDataFromContract = ethToJson(ethDataFromContract);
 ```js
 const { jsonToEth, ethToJson } = require ('./utils');
 
-// data entry id
-const id = '0x' + crypto.randomBytes(32).toString('hex');
+// data entry id, which should exist in Storage contract
+const id = '0x6af14e3c125e2528f0e0b6f554c408796a606f81b22f046ca7b8e6400156714b'
 // smart contract or account address, which is responsible for business logic for this entry
 const address = '0x120f5E67e56dECfc3C635BAAbd99446167320152'; 
 
