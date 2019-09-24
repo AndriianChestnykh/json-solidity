@@ -3,7 +3,7 @@ const BigNumber = require ('bignumber.js');
 
 const HEX_PREFIX = '0x';
 
-function jsonToEthObj(data) {
+function jsonToEthObject(data) {
     let parsedData;
     try {
         parsedData = parseJson(data);
@@ -24,10 +24,10 @@ function jsonToEthObj(data) {
 }
 
 function jsonToEth(data){
-  return Object.values(jsonToEthObj(data));
+  return Object.values(jsonToEthObject(data));
 }
 
-function ethToJsonObj(data) {
+function ethToObject(data) {
     let keys, values, offsets;
     try {
         ({keys, values, offsets} = parseEth(data));
@@ -45,7 +45,7 @@ function ethToJsonObj(data) {
 }
 
 function ethToJson(data){
-    return JSON.stringify(ethToJsonObj(data));
+    return JSON.stringify(ethToObject(data));
 }
 
 function parseJson(data) {
@@ -75,4 +75,4 @@ function parseEth({keys, values, offsets}) {
     }
 }
 
-module.exports = { jsonToEth, jsonToEthObj, ethToJson, ethToJsonObj, parseJson, parseEth };
+module.exports = { jsonToEth, jsonToEthObject, ethToJson, ethToObject, parseJson, parseEth };
