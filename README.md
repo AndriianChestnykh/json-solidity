@@ -5,7 +5,7 @@ This repository contains Solidity and JavaScript libraries which enables storage
 
 ## Features
 - [x] **Support JSON parsing and storage**  
-Smart contracts can store JSON objects with a set of name/value pairs of arbitrary pairs quantity and dynamic values length. At the moment, values can be only strings but not binary (hex) or nested data structure.
+Smart contracts can parse simple JSON data. Arbitrary quantity of key:value pairs. Dynamic values length. At the moment, values can be only strings but not binary (hex) or nested data structure.
 
 - [x] **On chain access to data structure**  
 Logic smart contracts build on top of Storage contract can operate key and values of JSON data in it.
@@ -52,3 +52,4 @@ Check [example.js](example.js) for more details
 ## Roadmap
 - [ ] Convenient wrappers of Contract abstractions and methods.
 - [ ] Hex data types for values
+- [ ] Data structure nesting
