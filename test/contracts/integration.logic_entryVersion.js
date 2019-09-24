@@ -59,7 +59,7 @@ contract('set', accounts => {
       { [key]: newValue },
       { _version: '\u0004' }
     ));
-    const keyHex = Web3.utils.rightPad(Web3.utils.stringToHex(key), 64);
+    const keyHex = Web3.utils.stringToHex(key);
 
     await logicInstance.setByDataKey(id, keyHex, `0x${Buffer.from(newValue).toString('hex')}`, {from: accounts[0]});
     const returnedData = await logicInstance.get.call(id);
@@ -81,7 +81,7 @@ contract('set', accounts => {
       { [newKey]: newValue },
       { _version: '\u0005' }
     ));
-    const newKeyHex = Web3.utils.rightPad(Web3.utils.stringToHex(newKey), 64);
+    const newKeyHex = Web3.utils.stringToHex(newKey);
 
     await logicInstance.setByDataKey(id, newKeyHex, `0x${Buffer.from(newValue).toString('hex')}`, {from: accounts[0]});
     const returnedData = await logicInstance.get.call(id);
