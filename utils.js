@@ -3,7 +3,7 @@ const BigNumber = require ('bignumber.js');
 
 const HEX_PREFIX = '0x';
 
-function jsonToEthObject(data) {
+function jsonToEthObj(data) {
     let parsedData;
     try {
         parsedData = parseJSON(data);
@@ -24,10 +24,10 @@ function jsonToEthObject(data) {
 }
 
 function jsonToEth(data){
-  return Object.values(jsonToEthObject(data));
+  return Object.values(jsonToEthObj(data));
 }
 
-function ethArgsToJson(keys, values, offsets) {
+function ethToJsonObj({keys, values, offsets}) {
     try {
         validateEth(keys, values, offsets);
     } catch (e) {
@@ -38,19 +38,17 @@ function ethArgsToJson(keys, values, offsets) {
     const valuesCopy = values.slice(HEX_PREFIX.length);
     const offsetsCopy = offsets.map(offset => offset instanceof BigNumber ? offset.toNumber(): offset);
 
-    const result = keysCopy.reduce((resultJS, key, index) => {
+    return keysCopy.reduce((resultJS, key, index) => {
         const startValue = offsetsCopy[index] * 2;
         const endValue = index !== offsetsCopy.length - 1 ? offsetsCopy[index + 1] * 2: values.length -1;
         const value = valuesCopy.slice(startValue, endValue);
         resultJS[key] = Web3.utils.hexToString(HEX_PREFIX + value);
         return resultJS;
     }, {});
-
-    return JSON.stringify(result);
 }
 
-function ethToJson({keys, values, offsets}){
-    return ethArgsToJson(keys, values, offsets);
+function ethToJson(data){
+    return JSON.stringify(ethToJsonObj(data));
 }
 
 function parseJSON(data) {
@@ -73,4 +71,4 @@ function validateEth(keys, values, offsets) {
     if (offsets.length !== keys.length) throw new Error('keys and offsets lengths are not equal');
 }
 
-module.exports = { jsonToEth, ethToJson, jsonToEthObject, parseJSON, validateEth };
+module.exports = { jsonToEth, jsonToEthObj, ethToJson, ethToJsonObj, parseJSON, validateEth };
