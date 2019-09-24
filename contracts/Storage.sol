@@ -79,6 +79,28 @@ contract Storage {
         }
     }
 
+    function removeByDataKey(bytes32 id, bytes32 key) public onlyLogic(id){
+        Entry storage e = entries[id];
+        bool keyExists;
+        uint keyIndex;
+
+        for (uint i = 0; i < e.keys.length; i++){
+            if (e.keys[i] == key) {
+                keyExists = true;
+                keyIndex = i;
+                e.size -= e.data[e.keys[i]].length;
+                delete e.data[e.keys[i]];
+                break;
+            }
+        }
+        require(keyExists, 'Data key does not exist!');
+
+        for (uint i = keyIndex + 1; i < e.keys.length; i++){
+            e.keys[i - 1] = e.keys[i];
+        }
+        e.keys.length--;
+    }
+
     function setLogic(bytes32 id, address newLogic) public onlyLogic(id){
         require(newLogic != address(0), 'Logic contract address can not be zero');
         entries[id].logic = newLogic;

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { jsonToEth, ethToJson } = require ('../../utils');
+const Web3 = require('web3');
 const Storage = artifacts.require('Storage');
 
 const jsonData = JSON.stringify({
@@ -155,6 +156,45 @@ contract('setByDataKey', accounts => {
     await storageInstance.setByDataKey(id, key, '0x00', {from: accounts[0]}).catch(e => error = e);
     assert.isDefined(error, 'No exception if the entry does not exist');
     console.log(error.message);
+  });
+});
+
+contract('removeByDataKey', accounts => {
+  it('removeByDataKey: Should remove data key and value', async () => {
+    const jsonData = JSON.stringify({
+      someKey1: 'someValue1',
+      someKey2: 'someValue2',
+      someKey3: 'someValue3',
+    });
+    let storageInstance = await Storage.deployed();
+    const logicAddress = accounts[0];
+
+    await storageInstance.set(id, ...jsonToEth(jsonData), logicAddress, {from: accounts[0]});
+
+    let parsedJsonData = JSON.parse(jsonData);
+    let keyName = Object.keys(parsedJsonData)[0];    //delete one key from data start
+    delete parsedJsonData[keyName];
+    let updatedJsonData = JSON.stringify(parsedJsonData);
+
+    await storageInstance.removeByDataKey(id, Web3.utils.toHex(keyName), {from: accounts[0]});
+    let returnedData = await storageInstance.get.call(id);
+    assert.equal(ethToJson(returnedData), updatedJsonData, 'Returned JSON data is not equal to expected');
+
+    parsedJsonData = JSON.parse(ethToJson(returnedData));
+    keyName = Object.keys(parsedJsonData)[1];     // delete one key from data end
+    delete parsedJsonData[keyName];
+    updatedJsonData = JSON.stringify(parsedJsonData);
+    await storageInstance.removeByDataKey(id, Web3.utils.toHex(keyName), {from: accounts[0]});
+    returnedData = await storageInstance.get.call(id);
+    assert.equal(ethToJson(returnedData), updatedJsonData, 'Returned JSON data is not equal to expected');
+
+    parsedJsonData = JSON.parse(ethToJson(returnedData));
+    keyName = Object.keys(parsedJsonData)[0];     // delete last key in data
+    delete parsedJsonData[keyName];
+    updatedJsonData = JSON.stringify(parsedJsonData);
+    await storageInstance.removeByDataKey(id, Web3.utils.toHex(keyName), {from: accounts[0]});
+    returnedData = await storageInstance.get.call(id);
+    assert.equal(ethToJson(returnedData), updatedJsonData, 'Returned JSON data is not equal to expected');
   });
 });
 
