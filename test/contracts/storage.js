@@ -6,6 +6,7 @@ const Storage = artifacts.require('Storage');
 const jsonData = JSON.stringify({
   someKey1: 'someValue1',
   someKey2: 'someValue2',
+  someKey3: 'someValue3',
 });
 
 const jsonData2 = JSON.stringify({
@@ -161,11 +162,6 @@ contract('setByDataKey', accounts => {
 
 contract('removeByDataKey', accounts => {
   it('removeByDataKey: Should remove data key and value', async () => {
-    const jsonData = JSON.stringify({
-      someKey1: 'someValue1',
-      someKey2: 'someValue2',
-      someKey3: 'someValue3',
-    });
     let storageInstance = await Storage.deployed();
     const logicAddress = accounts[0];
 
