@@ -17,13 +17,18 @@ async function processJsonExample (jsonData) {
   await storage.methods.set(id, ...jsonToEth(jsonData), address)
     .send({ from: address, gas: 1000000 }).catch(error => console.log(error.message));
 
-  await storage.methods.setByDataKey(id, Web3.utils.stringToHex('keyToChange'), Web3.utils.toHex('changed !'))
+  let keyName = Web3.utils.stringToHex('keyToChange');
+  let keyValue = Web3.utils.stringToHex('changed !');
+  await storage.methods.setByDataKey(id, keyName, keyValue)
     .send({ from: address, gas: 1000000 }).catch(error => console.log(error.message));
 
-  await storage.methods.removeByDataKey(id, Web3.utils.stringToHex('keyToDelete'))
+  keyName = Web3.utils.stringToHex('keyToDelete');
+  await storage.methods.removeByDataKey(id, keyName)
     .send({ from: address, gas: 1000000 }).catch(error => console.log(error.message));
 
-  await storage.methods.setByDataKey(id, Web3.utils.stringToHex('newKey'), Web3.utils.toHex('I am a new key !'))
+  keyName = Web3.utils.stringToHex('newKey');
+  keyValue = Web3.utils.stringToHex('I am a value of new key !');
+  await storage.methods.setByDataKey(id, keyName, keyValue)
     .send({ from: address, gas: 1000000 }).catch(error => console.log(error.message));
 
   const ethDataFromContract = await storage.methods.get(id).call();
@@ -36,8 +41,6 @@ const jsonData = JSON.stringify({
   keyToDelete: 'delete me !',
 });
 
-const updatedJsonData = processJsonExample(jsonData);
-
-console.log(`Initial JSON value: ${JSON.stringify(jsonData)}, JSON value after processing in Smart Contract: ${JSON.stringify(updatedJsonData)}`);
-
+processJsonExample(jsonData)
+  .then(value => console.log(`Initial JSON value: ${jsonData}, JSON value after processing in Smart Contract: ${value}`));
 

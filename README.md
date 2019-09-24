@@ -20,12 +20,14 @@ Each JSON entry in Storage contract is bound to its specific Logic Smart Sontrac
 const { jsonToEth, ethToJson } = require ('./utils');
 
 const jsonData = JSON.stringify({
-  someKey1: 'someValue1',
-  someKey2: 'someValue2',
-  someKey3: 'someValue3',
+  someKey1: 'some value 1',
+  someKey2: 'some value 2',
+  someKey3: 'some value 3',
 });
 
-// smart contract or account address, which is responsible for business logic
+// data entry id
+const id = '0x' + crypto.randomBytes(32).toString('hex');
+// smart contract or account address, which is responsible for business logic for this entry
 const address = '0x120f5E67e56dECfc3C635BAAbd99446167320152'; 
 
 await storage.methods.set(id, ...jsonToEth(jsonData), address).send({ from: address });
@@ -44,12 +46,19 @@ const jsonDataFromContract = ethToJson(ethDataFromContract);
 ```js
 const { jsonToEth, ethToJson } = require ('./utils');
 
-// smart contract or account address, which is responsible for business logic
+// data entry id
+const id = '0x' + crypto.randomBytes(32).toString('hex');
+// smart contract or account address, which is responsible for business logic for this entry
 const address = '0x120f5E67e56dECfc3C635BAAbd99446167320152'; 
 
-await storage.methods.setByDataKey(id, Web3.utils.stringToHex('newKey'), Web3.utils.toHex('I am a new key !')).send({ from: address });
-await storage.methods.setByDataKey(id, Web3.utils.stringToHex('keyToChange'), Web3.utils.toHex('changed !')).send({ from: address });
-await storage.methods.removeByDataKey(id, Web3.utils.stringToHex('keyToDelete')).send({ from: address });
+let keyName = Web3.utils.stringToHex('keyName');
+let keyValue = Web3.utils.stringToHex('key value');
+await storage.methods.setByDataKey(id, keyName, keyValue).send({ from: address });
+
+keyValue = Web3.utils.stringToHex('new key value');
+await storage.methods.setByDataKey(id, keyName, keyValue).send({ from: address });
+
+await storage.methods.removeByDataKey(id, keyName).send({ from: address });
 
 ``` 
 
