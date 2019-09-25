@@ -64,6 +64,8 @@ await storage.methods.removeByDataKey(id, keyName).send({ from: address });
 
 Check [example.js](example.js) for more details
 
+**Note: React demo UI may not work at the moment !!!**
+
 ## Roadmap
 - [ ] Convenient wrappers of Contract abstractions and methods.
 - [ ] Hex data types for values
