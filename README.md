@@ -1,5 +1,7 @@
 # Solidity JSON data storage
 
+Note: React demo UI may not work at the moment !!!
+
 ## Abstract 
 This repository contains Solidity and JavaScript libraries which enables storage and processing of JSON-like data structures on chain. It can be used as universal data storage for many use cases.
 
@@ -63,8 +65,6 @@ await storage.methods.removeByDataKey(id, keyName).send({ from: address });
 ``` 
 
 Check [example.js](example.js) for more details
-
-**Note: React demo UI may not work at the moment !!!**
 
 ## Roadmap
 - [ ] Convenient wrappers of Contract abstractions and methods.
